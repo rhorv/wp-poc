@@ -1,0 +1,24 @@
+version: "2"
+
+services:
+  sonarqube:
+    image: sonarqube:lts
+    ports:
+      - 9009:9000
+    links:
+      - db
+    environment:
+      - sonar.jdbc.username=sonar
+      - sonar.jdbc.password=sonar
+      - sonar.jdbc.url=jdbc:postgresql://db/sonar
+    volumes:
+      - /home/rhorvath/docker/sonar/sonarqube-data:/opt/sonarqube/data
+
+  db:
+    image: postgres:10
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar
+    volumes:
+      - /home/rhorvath/docker/sonar/postgres-data:/var/lib/postgresql/data
+

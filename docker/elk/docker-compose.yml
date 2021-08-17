@@ -1,0 +1,43 @@
+version: '2'
+services:
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.11.0
+    environment:
+      KAFKA_HOST: ${KAFKA_HOST}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+      ELASTICSEARCH_HOST: ${ELASTICSEARCH_HOST}
+      ELASTICSEARCH_PORT: ${ELASTICSEARCH_PORT}
+    links:
+      - elasticsearch
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
+    environment:
+      discovery.type: single-node
+    expose:
+      - 9200
+    ports:
+      - 9200:9200
+    volumes:
+      - ${ELK_HOME}/elasticsearch-data:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.11.0
+    environment:
+      ELASTICSEARCH_HOSTS: http://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+    links:
+      - elasticsearch
+    expose:
+      - 5601
+    ports:
+      - 5601:5601
+
+networks:
+  default:
+    external:
+      name: poc-events

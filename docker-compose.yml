@@ -1,0 +1,9 @@
+version: '2'
+services:
+  wp-poc:
+    image: wp-poc:latest
+
+networks:
+  default:
+    external:
+      name: poc-wp

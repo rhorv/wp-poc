@@ -1,0 +1,16 @@
+{
+    "type": "record",
+    "name": "edaAvroGenericSchema",
+    "namespace": "application.avro",
+    "fields" : [
+      { "name": "name", "type": "string", "default": "NONE" },
+      { "name": "id", "type": "string", "logicalType": "uuid" },
+      {
+        "name" : "payload",
+        "type" : { "type": "map", "values": "string" }
+      },
+      { "name": "category", "type": "string" },
+      { "name": "occurredAt", "type": "string" },
+      { "name": "version", "type": "int" }
+    ]
+}

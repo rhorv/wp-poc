@@ -1,0 +1,22 @@
+version: '2'
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    build: ./management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_ERLANG_COOKIE: unique-erlang-cookie
+    hostname: rabbitmq
+    ports:
+      - 5671:5671
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ${RABBITMQ_HOME}/data:/var/lib/rabbitmq
+
+networks:
+  default:
+    external:
+      name: poc-events
+

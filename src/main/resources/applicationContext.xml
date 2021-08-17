@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+                http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="rjs1SchemaFileProvider" class="events.formatter.schemaprovider.FileBasedSchemaProvider">
+    <constructor-arg value="src/main/resources/schema/rjs1/generic.json"/>
+    <constructor-arg>
+      <map/>
+    </constructor-arg>
+    <constructor-arg value="true"/>
+  </bean>
+
+  <bean id="rjs1Deserializer" class="events.formatter.family.rjs1.Rjs1Deserializer">
+    <constructor-arg ref="rjs1SchemaProvider"/>
+  </bean>
+
+  <bean id="rjs1Serializer" class="events.formatter.family.rjs1.Rjs1Serializer"/>
+  <bean id="decoratedRjs1Serializer"
+    class="events.formatter.family.rjs1.SerializedValidatorDecorator">
+    <constructor-arg ref="rjs1Serializer"/>
+    <constructor-arg ref="rjs1SchemaProvider"/>
+  </bean>
+
+  <bean id="messageFamilyAwareDeserializer" class="events.formatter.MessageFamilyAwareDeserializer">
+    <constructor-arg>
+      <map>
+        <entry key="#{T(events.formatter.family.rjs1.Rjs1Deserializer).NAME}"
+          value-ref="rjs1Deserializer"/>
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <bean id="guavaDispatcher" class="events.dispatcher.guava.GuavaDispatcher">
+  </bean>
+
+  <bean id="kafkaConsumer" class="events.consumer.kafka.KafkaTopicConsumer">
+    <constructor-arg ref="deserializer"/>
+    <constructor-arg ref="dispatcher"/>
+    <constructor-arg value="kafka:9092"/>
+    <constructor-arg value="testtopic"/>
+  </bean>
+
+  <bean id="kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
+    <constructor-arg ref="serializer"/>
+    <constructor-arg value="kafka:9092"/>
+    <constructor-arg value="testtopic"/>
+  </bean>
+  <bean id="kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
+    <constructor-arg ref="serializer"/>
+    <constructor-arg value="kafka:9092"/>
+    <constructor-arg value="testtopic"/>
+  </bean>
+
+  <bean id="splitKafkaPublisher" class="events.publisher.SplitPublisher">
+    <constructor-arg>
+      <map>
+        <entry key="event" value-ref="kafkaEventPublisher"/>
+        <entry key="command" value-ref="kafkaCommandPublisher"/>
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <alias name="splitKafkaPublisher" alias="messagePublisher"/>
+  <alias name="kafkaConsumer" alias="messageConsumer"/>
+  <alias name="guavaDispatcher" alias="dispatcher"/>
+  <alias name="decoratedRjs1Serializer" alias="serializer"/>
+  <alias name="messageFamilyAwareDeserializer" alias="deserializer"/>
+  <alias name="rjs1SchemaFileProvider" alias="rjs1SchemaProvider"/>
+
+  <bean id="bufferPublisher" class="events.publisher.Buffer">
+    <constructor-arg ref="splitKafkaPublisher"/>
+  </bean>
+
+  <bean id="paymentRepository" class="clearing.service.infrastructure.InMemoryPaymentRepository">
+  </bean>
+
+  <bean id="schemeChargesProvider"
+    class="clearing.service.infrastructure.InMemorySchemeChargesProvider">
+  </bean>
+
+  <bean id="clearPaymentCommandHandler"
+    class="clearing.service.application.ClearPaymentCommandHandler">
+    <constructor-arg ref="paymentRepository"/>
+    <constructor-arg ref="schemeChargesProvider"/>
+    <constructor-arg ref="bufferPublisher"/>
+  </bean>
+
+  <bean id="merchantRepository" class="pricing.service.infrastructure.InMemoryMerchantRepository">
+  </bean>
+
+  <bean id="paymentClearedEventHandler"
+    class="pricing.service.application.PaymentClearedEventHandler">
+    <constructor-arg ref="bufferPublisher"/>
+  </bean>
+
+  <bean id="calculateChargesCommandHandler"
+    class="pricing.service.application.CalculateChargesCommandHandler">
+    <constructor-arg ref="merchantRepository"/>
+    <constructor-arg ref="bufferPublisher"/>
+  </bean>
+
+
+</beans>
