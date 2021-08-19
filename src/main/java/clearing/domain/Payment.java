@@ -37,7 +37,7 @@ public class Payment {
     this.status = PaymentStatus.CLEARED;
 
     DomainEvent.publish(
-        new PaymentClearedEvent(UUID.randomUUID(), costs.getInterchangeCost(), costs.getSchemeFee(),
+        new PaymentClearedEvent(this.id, costs.getInterchangeCost(), costs.getSchemeFee(),
             this.value, this.scheme, this.merchantId));
   }
 
