@@ -25,7 +25,7 @@ check-deps: ## Checks the required dependecies
 init: docker-init ## Initializes the project
 
 docker-init: ## Initializes the docker network adapter and creates required directories
-	@if [ "`docker network ls | grep poc-events`" == "" ]; then docker network create poc-wp; else echo "Docker network already exists"; fi
+	@if [ "`docker network ls | grep poc-wp`" == "" ]; then docker network create poc-wp; else echo "Docker network already exists"; fi
 	mkdir -p `grep 'KAFKA_HOME' docker/kafka/.env | cut -d "=" -f 2`;
 	mkdir -p `grep 'ELK_HOME' docker/elk/.env | cut -d "=" -f 2`/elasticsearch-data;
 

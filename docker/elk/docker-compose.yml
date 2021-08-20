@@ -40,4 +40,4 @@ services:
 networks:
   default:
     external:
-      name: poc-events
+      name: poc-wp
