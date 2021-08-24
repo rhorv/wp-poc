@@ -1,0 +1,71 @@
+version: 2.1
+
+executors:
+  java-executor:
+    docker:
+      - image: cimg/openjdk:11.0
+    working_directory: ~/wp-poc
+jobs:
+  # Below is the definition of your job to build and test your app, you can rename and customize it as you want.
+  build:
+    executor: java-executor
+    # These next lines define a Docker executor: https://circleci.com/docs/2.0/executor-types/
+    # You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # Be sure to update the Docker image tag below to openjdk version of your application.
+    # A list of available CircleCI Docker Convenience Images are available here: https://circleci.com/developer/images/image/cimg/openjdk
+    steps:
+      - run: mkdir -p workspace/code
+      - checkout:
+          path: ~/wp-poc/workspace/code
+      - run: cd ~/wp-poc/workspace/code; make test
+      - run: cd ~/wp-poc/workspace/code; make build
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - code
+
+  build-container:
+    executor: java-executor
+    steps:
+      - attach_workspace:
+          at: ~/wp-poc/workspace
+      - setup_remote_docker
+      - run: docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+      - run: cd ~/wp-poc/workspace/code; make container
+      - run:
+          name: push-container
+          command: >
+                  docker tag wp-poc:latest ${DOCKER_USERNAME}/wp-poc:${CIRCLE_SHA1} &&
+                  docker push ${DOCKER_USERNAME}/wp-poc:${CIRCLE_SHA1} &&
+                  docker tag wp-poc:latest ${DOCKER_USERNAME}/wp-poc:latest &&
+                  docker push ${DOCKER_USERNAME}/wp-poc:latest
+  commit-to-ops-repo:
+    executor: java-executor
+    steps:
+      - run: mkdir -p ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - run: mkdir -p workspace/deployment
+      - run: cd ~/wp-poc/workspace/deployment && git clone git@github.com:rhorv/wp-poc-argocd.git
+      - run:
+          name: Updating deployment repo
+          command: >
+                  cd ~/wp-poc/workspace/deployment && wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 && chmod +x yq_linux_amd64 &&
+                  cd ~/wp-poc/workspace/deployment/wp-poc-argocd &&
+                  ../yq_linux_amd64 w --inplace manifest/wp/clearing/consumer-deployment.yaml 'spec.template.spec.containers[name==wp-poc].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
+                  ../yq_linux_amd64 w --inplace manifest/wp/pricing/consumer-deployment.yaml 'spec.template.spec.containers[name==wp-poc].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
+                  git config user.email "rhorvath@starfleet.hu" && git config user.name "CircleCI WP-POC" && git add . && git commit -m "Automatic commit for new container ${CIRCLE_SHA1}" && git push origin master
+workflows:
+  version: 2
+
+  build-from-master:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - develop
+      - build-container:
+          requires:
+            - build
+      - commit-to-ops-repo:
+          requires:
+            - build-container
