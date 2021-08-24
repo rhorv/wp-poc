@@ -62,7 +62,7 @@ workflows:
           filters:
             branches:
               only:
-                - develop
+                - master
       - build-container:
           requires:
             - build
