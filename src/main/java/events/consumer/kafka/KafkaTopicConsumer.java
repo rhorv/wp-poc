@@ -4,6 +4,8 @@ import events.consumer.IConsume;
 import events.dispatcher.IDispatch;
 import events.formatter.Envelope;
 import events.formatter.IDeserializeMessage;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +46,7 @@ public class KafkaTopicConsumer implements IConsume {
     final Consumer<Long, byte[]> consumer = new KafkaConsumer<>(props);
 
     // Subscribe to the topic.
-    consumer.subscribe(Collections.singletonList(topicName));
+    consumer.subscribe(Arrays.asList(topicName.split(",")));
     return consumer;
   }
 

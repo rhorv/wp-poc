@@ -6,10 +6,10 @@ services:
     image: postgres
     restart: always
     ports:
-      - 5432:5432
+      - ${PG_CLEARING_PORT}:5432
     environment:
-      POSTGRES_PASSWORD: devdata
-      POSTGRES_USER: devdata
+      POSTGRES_PASSWORD: ${PG_CLEARING_PASS}
+      POSTGRES_USER: ${PG_CLEARING_USER}
 
 networks:
   default:

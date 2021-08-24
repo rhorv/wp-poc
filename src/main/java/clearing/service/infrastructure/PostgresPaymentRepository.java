@@ -15,7 +15,6 @@ import java.util.UUID;
 import money.Currency;
 import money.Money;
 import org.joda.time.DateTime;
-import sun.reflect.ReflectionFactory;
 
 public class PostgresPaymentRepository implements PaymentRepository {
 
@@ -26,8 +25,8 @@ public class PostgresPaymentRepository implements PaymentRepository {
   private String pass;
   private String dbName;
 
-  public PostgresPaymentRepository(String host, Integer port, String user, String pass,
-      String dbName) {
+  public PostgresPaymentRepository(
+      String host, Integer port, String user, String pass, String dbName) {
     this.host = host;
     this.port = port;
     this.user = user;
@@ -37,9 +36,11 @@ public class PostgresPaymentRepository implements PaymentRepository {
 
   private Connection connect() throws Exception {
     if (this.connection == null) {
-      this.connection = DriverManager.getConnection(
-          "jdbc:postgresql://" + this.host + ":" + this.port + "/" + this.dbName, this.user,
-          this.pass);
+      this.connection =
+          DriverManager.getConnection(
+              "jdbc:postgresql://" + this.host + ":" + this.port + "/" + this.dbName,
+              this.user,
+              this.pass);
     }
     return this.connection;
   }
@@ -48,25 +49,26 @@ public class PostgresPaymentRepository implements PaymentRepository {
     Connection conn = connect();
 
     if (paymentExists(payment.getId())) {
-      PreparedStatement statement = conn.prepareStatement(
-          "UPDATE payment SET merchant_id = ?, total_value = ?, "
-              + "currency = ?, scheme = ?, paid_at = ?, status = ?");
+      PreparedStatement statement =
+          conn.prepareStatement(
+              "UPDATE payment SET merchant_id = ?, total_value = ?, "
+                  + "currency = ?, scheme = ?, paid_at = ?, status = ? WHERE id = ?");
 
-      Field merchantField = payment.getClass().getDeclaredField("merchant_id");
+      Field merchantField = payment.getClass().getDeclaredField("merchantId");
       merchantField.setAccessible(true);
       statement.setString(1, ((UUID) merchantField.get(payment)).toString());
 
       Field valueField = payment.getClass().getDeclaredField("value");
       valueField.setAccessible(true);
-      statement
-          .setInt(2, Integer.valueOf(((Money) valueField.get(payment)).getAmount().toString()));
+      statement.setInt(
+          2, Integer.valueOf(((Money) valueField.get(payment)).getAmount().toString()));
       statement.setString(3, ((Money) valueField.get(payment)).getCurrency().toString());
 
       Field schemeField = payment.getClass().getDeclaredField("scheme");
       schemeField.setAccessible(true);
       statement.setString(4, ((Scheme) schemeField.get(payment)).toString());
 
-      Field paidAtField = payment.getClass().getDeclaredField("paid_at");
+      Field paidAtField = payment.getClass().getDeclaredField("paidAt");
       paidAtField.setAccessible(true);
       statement.setTimestamp(5, new Timestamp(((DateTime) paidAtField.get(payment)).getMillis()));
 
@@ -74,31 +76,36 @@ public class PostgresPaymentRepository implements PaymentRepository {
       statusField.setAccessible(true);
       statement.setString(6, ((PaymentStatus) statusField.get(payment)).toString());
 
-      statement.executeQuery();
+      Field idField = payment.getClass().getDeclaredField("id");
+      idField.setAccessible(true);
+      statement.setString(7, ((UUID) idField.get(payment)).toString());
+
+      statement.execute();
     } else {
-      PreparedStatement statement = conn.prepareStatement(
-          "INSERT INTO payment (id, merchant_id, total_value, currency, "
-              + "scheme, paid_at, status) VALUES (?,?,?,?,?,?,?)");
+      PreparedStatement statement =
+          conn.prepareStatement(
+              "INSERT INTO payment (id, merchant_id, total_value, currency, "
+                  + "scheme, paid_at, status) VALUES (?,?,?,?,?,?,?)");
 
       Field idField = payment.getClass().getDeclaredField("id");
       idField.setAccessible(true);
       statement.setString(1, ((UUID) idField.get(payment)).toString());
 
-      Field merchantField = payment.getClass().getDeclaredField("merchant_id");
+      Field merchantField = payment.getClass().getDeclaredField("merchantId");
       merchantField.setAccessible(true);
       statement.setString(2, ((UUID) merchantField.get(payment)).toString());
 
       Field valueField = payment.getClass().getDeclaredField("value");
       valueField.setAccessible(true);
-      statement
-          .setInt(3, Integer.valueOf(((Money) valueField.get(payment)).getAmount().toString()));
+      statement.setInt(
+          3, Integer.valueOf(((Money) valueField.get(payment)).getAmount().toString()));
       statement.setString(4, ((Money) valueField.get(payment)).getCurrency().toString());
 
       Field schemeField = payment.getClass().getDeclaredField("scheme");
       schemeField.setAccessible(true);
       statement.setString(5, ((Scheme) schemeField.get(payment)).toString());
 
-      Field paidAtField = payment.getClass().getDeclaredField("paid_at");
+      Field paidAtField = payment.getClass().getDeclaredField("paidAt");
       paidAtField.setAccessible(true);
       statement.setTimestamp(6, new Timestamp(((DateTime) paidAtField.get(payment)).getMillis()));
 
@@ -106,7 +113,7 @@ public class PostgresPaymentRepository implements PaymentRepository {
       statusField.setAccessible(true);
       statement.setString(7, ((PaymentStatus) statusField.get(payment)).toString());
 
-      statement.executeQuery();
+      statement.execute();
     }
   }
 
@@ -115,7 +122,7 @@ public class PostgresPaymentRepository implements PaymentRepository {
     PreparedStatement statement = conn.prepareStatement("SELECT id FROM payment WHERE id = ?");
     statement.setString(1, id.toString());
     ResultSet resultSet = statement.executeQuery();
-    return resultSet.getFetchSize() > 0;
+    return resultSet.next();
   }
 
   public Payment get(UUID id) throws Exception {
@@ -125,6 +132,7 @@ public class PostgresPaymentRepository implements PaymentRepository {
     ResultSet resultSet = statement.executeQuery();
     resultSet.next();
     Class def = Class.forName("clearing.domain.Payment");
+    /*
     ReflectionFactory rf =
         ReflectionFactory.getReflectionFactory();
     Constructor objDef = def.getDeclaredConstructor();
@@ -132,7 +140,10 @@ public class PostgresPaymentRepository implements PaymentRepository {
         def, objDef
     );
     Payment payment = (Payment) def.cast(intConstr.newInstance());
-
+    */
+    // Need to figure out how to create objects without calling the constructor... at some point
+    Payment payment =
+        new Payment(Scheme.VISA, new Money(1, Currency.GBP), DateTime.now(), UUID.randomUUID());
     Field statusField = payment.getClass().getDeclaredField("status");
     statusField.setAccessible(true);
     statusField.set(payment, PaymentStatus.valueOf(resultSet.getString("status")));
@@ -143,20 +154,22 @@ public class PostgresPaymentRepository implements PaymentRepository {
 
     Field valueField = payment.getClass().getDeclaredField("value");
     valueField.setAccessible(true);
-    valueField.set(payment, new Money(resultSet.getInt("total_value"),
-        Currency.valueOf(resultSet.getString("currency"))));
+    valueField.set(
+        payment,
+        new Money(
+            resultSet.getInt("total_value"), Currency.valueOf(resultSet.getString("currency"))));
 
-    Field merchantField = payment.getClass().getDeclaredField("merchant_id");
+    Field merchantField = payment.getClass().getDeclaredField("merchantId");
     merchantField.setAccessible(true);
     merchantField.set(payment, UUID.fromString(resultSet.getString("merchant_id")));
 
-    Field paidAtField = payment.getClass().getDeclaredField("paid_at");
+    Field paidAtField = payment.getClass().getDeclaredField("paidAt");
     paidAtField.setAccessible(true);
-    paidAtField.set(payment, new DateTime(resultSet.getTimestamp("timestamp")));
+    paidAtField.set(payment, new DateTime(resultSet.getTimestamp("paid_at")));
 
     Field schemeField = payment.getClass().getDeclaredField("scheme");
     schemeField.setAccessible(true);
-    schemeField.set(payment, Scheme.valueOf(resultSet.getString("scheme")));
+    schemeField.set(payment, Scheme.valueOf(resultSet.getString("scheme").trim()));
 
     return payment;
   }
