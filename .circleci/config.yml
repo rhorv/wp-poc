@@ -50,8 +50,8 @@ jobs:
           command: >
                   cd ~/wp-poc/workspace/deployment && wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 && chmod +x yq_linux_amd64 &&
                   cd ~/wp-poc/workspace/deployment/wp-poc-argocd &&
-                  ../yq_linux_amd64 w --inplace manifest/wp/clearing/consumer-deployment.yaml 'spec.template.spec.containers[name==wp-poc].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
-                  ../yq_linux_amd64 w --inplace manifest/wp/pricing/consumer-deployment.yaml 'spec.template.spec.containers[name==wp-poc].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
+                  ../yq_linux_amd64 w --inplace manifest/wp/clearing/consumer-deployment.yaml 'spec.template.spec.containers[name==clearing-consumer].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
+                  ../yq_linux_amd64 w --inplace manifest/wp/pricing/consumer-deployment.yaml 'spec.template.spec.containers[name==pricing-consumer].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
                   git config user.email "rhorvath@starfleet.hu" && git config user.name "CircleCI WP-POC" && git add . && git commit -m "Automatic commit for new container ${CIRCLE_SHA1}" && git push origin master
 workflows:
   version: 2
