@@ -1,5 +1,9 @@
 package poc;
 
+import clearing.domain.command.ClearPaymentCommand;
+import events.publisher.IPublish;
+import java.util.UUID;
+
 public class MyApplication {
 
   public static void main(String[] args) throws Exception {

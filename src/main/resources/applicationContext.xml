@@ -46,6 +46,7 @@
     <constructor-arg ref="dispatcher"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_CLEARING_INTERNAL_TOPIC_NAME']}"/>
+    <constructor-arg value="clearing"/>
   </bean>
 
   <bean id="clearing.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
@@ -107,6 +108,7 @@
     <constructor-arg ref="dispatcher"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_PRICING_INTERNAL_TOPIC_NAME']},#{systemEnvironment['KAFKA_CLEARING_EXTERNAL_TOPIC_NAME']}"/>
+    <constructor-arg value="pricing"/>
   </bean>
 
   <bean id="pricing.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">

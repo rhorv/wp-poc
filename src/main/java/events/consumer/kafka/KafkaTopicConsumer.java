@@ -23,19 +23,21 @@ public class KafkaTopicConsumer implements IConsume {
   private IDispatch dispatcher;
   private String server;
   private String topicName;
+  private String groupId;
 
   public KafkaTopicConsumer(
-      IDeserializeMessage formatter, IDispatch dispatcher, String server, String topicName) {
+      IDeserializeMessage formatter, IDispatch dispatcher, String server, String topicName, String groupId) {
     this.formatter = formatter;
     this.dispatcher = dispatcher;
     this.server = server;
     this.topicName = topicName;
+    this.groupId = groupId;
   }
 
-  private Consumer<Long, byte[]> createConsumer(String server, String topicName) {
+  private Consumer<Long, byte[]> createConsumer(String server, String topicName, String groupId) {
     final Properties props = new Properties();
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, server);
-    props.put(ConsumerConfig.GROUP_ID_CONFIG, "KafkaExampleConsumer");
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         "org.apache.kafka.common.serialization.LongDeserializer");
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
@@ -51,7 +53,7 @@ public class KafkaTopicConsumer implements IConsume {
   }
 
   private void runConsumer(Integer giveUp) throws InterruptedException {
-    Consumer<Long, byte[]> consumer = createConsumer(this.server, this.topicName);
+    Consumer<Long, byte[]> consumer = createConsumer(this.server, this.topicName, this.groupId);
     int noRecordsCount = 0;
 
     while (true) {
