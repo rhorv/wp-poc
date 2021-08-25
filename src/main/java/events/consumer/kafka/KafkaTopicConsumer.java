@@ -26,7 +26,11 @@ public class KafkaTopicConsumer implements IConsume {
   private String groupId;
 
   public KafkaTopicConsumer(
-      IDeserializeMessage formatter, IDispatch dispatcher, String server, String topicName, String groupId) {
+      IDeserializeMessage formatter,
+      IDispatch dispatcher,
+      String server,
+      String topicName,
+      String groupId) {
     this.formatter = formatter;
     this.dispatcher = dispatcher;
     this.server = server;
@@ -38,9 +42,11 @@ public class KafkaTopicConsumer implements IConsume {
     final Properties props = new Properties();
     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, server);
     props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+    props.put(
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         "org.apache.kafka.common.serialization.LongDeserializer");
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+    props.put(
+        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         "org.apache.kafka.common.serialization.ByteArrayDeserializer");
     props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
@@ -73,7 +79,9 @@ public class KafkaTopicConsumer implements IConsume {
             try {
               System.out.printf(
                   "[x] Consumer Record:(%d, %s, %d, %d)\n",
-                  record.key(), IOUtils.toString(record.value()), record.partition(),
+                  record.key(),
+                  IOUtils.toString(record.value()),
+                  record.partition(),
                   record.offset());
               Map<String, String> headers = new HashMap<>();
               for (Header header : record.headers().toArray()) {
