@@ -23,14 +23,15 @@ services:
       KAFKA_RESTART_ATTEMPTS: "10"
       KAFKA_RESTART_DELAY: "5"
       ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
-  kafdrop:
-    image: obsidiandynamics/kafdrop
+
+  ui:
+    image: provectuslabs/kafka-ui:latest
     restart: "no"
     ports:
-      - ${KAFDROP_PORT}:9000
+      - 9000:8080
     environment:
-      KAFKA_BROKERCONNECT: "${KAFKA_HOST}:${KAFKA_EXTERNAL_PORT}"
-      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "${KAFKA_HOST}:${KAFKA_EXTERNAL_PORT}"
     depends_on:
       - "kafka"
 
