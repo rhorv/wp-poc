@@ -138,7 +138,12 @@
     <constructor-arg ref="pricing.splitKafkaPublisher"/>
   </bean>
 
-  <bean id="merchantRepository" class="pricing.service.infrastructure.InMemoryMerchantRepository">
+  <bean id="merchantRepository" class="pricing.service.infrastructure.PostgresMerchantRepository">
+    <constructor-arg value="#{systemEnvironment['PG_PRICING_HOST']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_PRICING_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_PRICING_USER']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_PRICING_PASS']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_PRICING_DB']}"/>
   </bean>
 
   <bean id="paymentClearedEventHandler"

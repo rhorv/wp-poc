@@ -30,8 +30,10 @@ docker-init: ## Initializes the docker network adapter and creates required dire
 	mkdir -p `grep 'ELK_HOME' docker/elk/.env | cut -d "=" -f 2`/elasticsearch-data;
 
 kafka-setup: ## Initializes the kafka topics
-	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic testtopic --bootstrap-server localhost:9092
-	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic othertopic --bootstrap-server localhost:9092
+	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic clearing-payment --bootstrap-server localhost:9092
+	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic clearing-internal --bootstrap-server localhost:9092
+	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic pricing-payment --bootstrap-server localhost:9092
+	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic pricing-internal --bootstrap-server localhost:9092
 
 kafka-start: ## Starts the kafka docker service
 	@export PWD=`pwd`

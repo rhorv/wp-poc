@@ -126,6 +126,10 @@ public class PostgresPaymentRepository implements PaymentRepository {
   }
 
   public Payment get(UUID id) throws Exception {
+    if (!paymentExists(id)) {
+      throw new Exception("POC002 - Payment '" + id.toString() + "' does not exist");
+    }
+
     Connection conn = connect();
     PreparedStatement statement = conn.prepareStatement("SELECT * FROM payment WHERE id = ?");
     statement.setString(1, id.toString());

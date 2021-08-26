@@ -49,6 +49,8 @@ public class KafkaTopicConsumer implements IConsume {
         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
         "org.apache.kafka.common.serialization.ByteArrayDeserializer");
     props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+    props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 0);
 
     // Create the consumer using props.
     final Consumer<Long, byte[]> consumer = new KafkaConsumer<>(props);
