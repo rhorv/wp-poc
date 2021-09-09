@@ -1,4 +1,4 @@
-package clearing;
+package billing;
 
 import events.consumer.IConsume;
 import events.dispatcher.IDispatch;
@@ -7,7 +7,6 @@ import events.publisher.Buffer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
 public class Consumer {
 
   public void start() {
@@ -15,21 +14,22 @@ public class Consumer {
     ApplicationContext appContext =
         new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
 
-    IConsume consumer = (IConsume) appContext.getBean("clearing.messageConsumer");
+    IConsume consumer = (IConsume) appContext.getBean("billing.messageConsumer");
     IDispatch dispatcher = (IDispatch) appContext.getBean("dispatcher");
-    Buffer bufferPublisher = (Buffer) appContext.getBean("clearing.bufferPublisher");
+    Buffer bufferPublisher = (Buffer) appContext.getBean("billing.bufferPublisher");
 
-    clearing.service.DomainEvent.registerPublisher(bufferPublisher);
+    billing.service.DomainEvent.registerPublisher(bufferPublisher);
 
     dispatcher.subscribe(
-        "clear_payment", (IHandle) appContext.getBean("clearPaymentCommandHandler"));
+        "payment_charge_calculated",
+        (IHandle) appContext.getBean("paymentChargeCalculatedEventHandler"));
+    dispatcher.subscribe(
+        "add_payment_to_bill", (IHandle) appContext.getBean("addToBillCommandHandler"));
 
     try {
       consumer.consume();
     } catch (Exception e) {
       e.printStackTrace();
     }
-
   }
-
 }

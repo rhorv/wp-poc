@@ -158,4 +158,68 @@
   </bean>
 
 
+
+
+
+
+
+  <bean id="billing.kafkaConsumer" class="events.consumer.kafka.KafkaTopicConsumer">
+    <constructor-arg ref="deserializer"/>
+    <constructor-arg ref="dispatcher"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_BILLING_INTERNAL_TOPIC_NAME']},#{systemEnvironment['KAFKA_PRICING_EXTERNAL_TOPIC_NAME']}"/>
+    <constructor-arg value="billing"/>
+  </bean>
+
+  <bean id="billing.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
+    <constructor-arg ref="serializer"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_BILLING_EXTERNAL_TOPIC_NAME']}"/>
+  </bean>
+  <bean id="billing.kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
+    <constructor-arg ref="serializer"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_BILLING_INTERNAL_TOPIC_NAME']}"/>
+  </bean>
+
+  <bean id="billing.splitKafkaPublisher" class="events.publisher.SplitPublisher">
+    <constructor-arg>
+      <map>
+        <entry key="event" value-ref="billing.kafkaEventPublisher"/>
+        <entry key="command" value-ref="billing.kafkaCommandPublisher"/>
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <alias name="billing.splitKafkaPublisher" alias="billing.messagePublisher"/>
+  <alias name="billing.kafkaConsumer" alias="billing.messageConsumer"/>
+
+  <bean id="billing.bufferPublisher" class="events.publisher.Buffer">
+    <constructor-arg ref="billing.splitKafkaPublisher"/>
+  </bean>
+
+  <bean id="billRepository" class="billing.service.infrastructure.PostgresBillRepository">
+    <constructor-arg value="#{systemEnvironment['PG_BILLING_HOST']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_BILLING_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_BILLING_USER']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_BILLING_PASS']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_BILLING_DB']}"/>
+  </bean>
+
+  <bean id="paymentChargeCalculatedEventHandler"
+    class="billing.service.application.PaymentChargeCalculatedEventHandler">
+    <constructor-arg ref="billing.bufferPublisher"/>
+  </bean>
+
+  <bean id="addToBillCommandHandler"
+    class="billing.service.application.BillAggregatorHandler">
+    <constructor-arg ref="billRepository"/>
+    <constructor-arg ref="billing.bufferPublisher"/>
+  </bean>
+
+
+
+
+
+
 </beans>

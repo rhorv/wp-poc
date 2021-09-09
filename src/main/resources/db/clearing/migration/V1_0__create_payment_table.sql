@@ -1,0 +1,1 @@
+CREATE TABLE payment (id char(36) NOT NULL UNIQUE PRIMARY KEY, merchant_id char(36) NOT NULL, total_value integer NOT NULL, currency char(3) NOT NULL, scheme char(16) NOT NULL, paid_at timestamp with time zone NOT NULL, status varchar(16) NOT NULL)

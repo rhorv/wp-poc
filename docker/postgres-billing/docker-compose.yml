@@ -1,0 +1,17 @@
+version: '3.1'
+
+services:
+
+  pricing-db:
+    image: postgres
+    restart: always
+    ports:
+      - ${PG_BILLING_PORT}:5432
+    environment:
+      POSTGRES_PASSWORD: ${PG_BILLING_PASS}
+      POSTGRES_USER: ${PG_BILLING_USER}
+
+networks:
+  default:
+    external:
+      name: poc-wp

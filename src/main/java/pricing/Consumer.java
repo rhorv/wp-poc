@@ -18,7 +18,6 @@ public class Consumer {
     IDispatch dispatcher = (IDispatch) appContext.getBean("dispatcher");
     Buffer bufferPublisher = (Buffer) appContext.getBean("pricing.bufferPublisher");
 
-    clearing.service.DomainEvent.registerPublisher(bufferPublisher);
     pricing.service.DomainEvent.registerPublisher(bufferPublisher);
 
     dispatcher.subscribe(

@@ -110,5 +110,4 @@ public class ClearingFeature {
   public Scheme scheme(String scheme) {
     return Scheme.valueOf(scheme);
   }
-
 }
