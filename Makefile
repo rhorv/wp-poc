@@ -1,8 +1,8 @@
-include docker/postgres-pricing/.env
-include docker/postgres-billing/.env
-include docker/postgres-clearing/.env
-include docker/kafka/.env
-include docker/elk/.env
+-include docker/postgres-pricing/.env
+-include docker/postgres-billing/.env
+-include docker/postgres-clearing/.env
+-include docker/kafka/.env
+-include docker/elk/.env
 
 SHELL := /bin/bash
 
