@@ -112,8 +112,8 @@ test: ## Runs the tests
 container: clean build ## Builds the docker container for this project
 	docker build -t wp-poc -f docker/app/Dockerfile .
 
-container-infra: clean build ## Builds the docker container for this project
-	docker build -t wp-poc-infra -f docker/app-infra/Dockerfile .
+container-db-infra: clean ## Builds the docker container for db infra for this project
+	docker build -t wp-poc-db-infra -f docker/app-db-infra/Dockerfile .
 
 clean: ## Cleans the project
 	mvn clean
