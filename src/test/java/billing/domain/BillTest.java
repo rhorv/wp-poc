@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import billing.domain.event.BillClosedEvent;
 import billing.domain.event.PaymentAddedToBillEvent;
 import billing.service.DomainEvent;
 import clearing.domain.event.PaymentClearedEvent;
@@ -53,6 +54,16 @@ public class BillTest {
     assertTrue(bill.hasNewPayment(paymentId));
     assertEquals(this.buffer.messages.size(), 1);
     assertEquals(this.buffer.messages.get(0).getName(), PaymentAddedToBillEvent.NAME);
+  }
+
+  @Test
+  void testItCanBeClosed() throws Exception {
+    Bill bill = new Bill(UUID.randomUUID(), new Reference("12345678"));
+    assertTrue(bill.isOpen());
+    bill.close();
+    assertFalse(bill.isOpen());
+    assertEquals(this.buffer.messages.size(), 1);
+    assertEquals(this.buffer.messages.get(0).getName(), BillClosedEvent.NAME);
   }
 
 }

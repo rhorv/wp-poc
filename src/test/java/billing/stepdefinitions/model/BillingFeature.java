@@ -1,11 +1,13 @@
 package billing.stepdefinitions.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import billing.domain.Bill;
 import billing.domain.Payment;
 import billing.domain.Reference;
+import billing.domain.event.BillClosedEvent;
 import billing.domain.event.PaymentAddedToBillEvent;
 import billing.service.DomainEvent;
 import events.IMessage;
@@ -60,4 +62,15 @@ public class BillingFeature {
 
   }
 
+  @When("I close that bill")
+  public void iCloseThatBill() throws Exception {
+    this.bill.close();
+  }
+
+  @Then("That bill will be closed")
+  public void thatBillWillBeClosed() {
+    assertFalse(this.bill.isOpen());
+    assertEquals(this.publisher.messages.size(), 1);
+    assertEquals(this.publisher.messages.get(0).getName(), BillClosedEvent.NAME);
+  }
 }
