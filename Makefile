@@ -110,7 +110,10 @@ test: ## Runs the tests
 	mvn test
 
 container: clean build ## Builds the docker container for this project
-	docker build -t wp-poc .
+	docker build -t wp-poc -f docker/app/Dockerfile .
+
+container-infra: clean build ## Builds the docker container for this project
+	docker build -t wp-poc-infra -f docker/app-infra/Dockerfile .
 
 clean: ## Cleans the project
 	mvn clean
