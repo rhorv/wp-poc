@@ -34,12 +34,12 @@ jobs:
       - run: cd ~/wp-poc/workspace/code; make container
       - run: cd ~/wp-poc/workspace/code; make container-infra
       - run:
-          name: push-container
+          name: push-containers
           command: >
                   docker tag wp-poc:latest ${DOCKER_USERNAME}/wp-poc:${CIRCLE_SHA1} &&
                   docker push ${DOCKER_USERNAME}/wp-poc:${CIRCLE_SHA1} &&
                   docker tag wp-poc:latest ${DOCKER_USERNAME}/wp-poc:latest &&
-                  docker push ${DOCKER_USERNAME}/wp-poc:latest
+                  docker push ${DOCKER_USERNAME}/wp-poc:latest &&
                   docker tag wp-poc-infra:latest ${DOCKER_USERNAME}/wp-poc-infra:${CIRCLE_SHA1} &&
                   docker push ${DOCKER_USERNAME}/wp-poc-infra:${CIRCLE_SHA1} &&
                   docker tag wp-poc-infra:latest ${DOCKER_USERNAME}/wp-poc-infra:latest &&
