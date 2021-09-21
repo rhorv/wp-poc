@@ -222,4 +222,63 @@
 
 
 
+
+  <bean id="funding.kafkaConsumer" class="events.consumer.kafka.KafkaTopicConsumer">
+    <constructor-arg ref="deserializer"/>
+    <constructor-arg ref="dispatcher"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_FUNDING_INTERNAL_TOPIC_NAME']},#{systemEnvironment['KAFKA_CLEARING_EXTERNAL_TOPIC_NAME']}"/>
+    <constructor-arg value="funding"/>
+  </bean>
+
+  <bean id="funding.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
+    <constructor-arg ref="serializer"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_FUNDING_EXTERNAL_TOPIC_NAME']}"/>
+  </bean>
+  <bean id="funding.kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
+    <constructor-arg ref="serializer"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_FUNDING_INTERNAL_TOPIC_NAME']}"/>
+  </bean>
+
+  <bean id="funding.splitKafkaPublisher" class="events.publisher.SplitPublisher">
+    <constructor-arg>
+      <map>
+        <entry key="event" value-ref="funding.kafkaEventPublisher"/>
+        <entry key="command" value-ref="funding.kafkaCommandPublisher"/>
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <alias name="funding.splitKafkaPublisher" alias="funding.messagePublisher"/>
+  <alias name="funding.kafkaConsumer" alias="funding.messageConsumer"/>
+
+  <bean id="funding.bufferPublisher" class="events.publisher.Buffer">
+    <constructor-arg ref="funding.splitKafkaPublisher"/>
+  </bean>
+
+  <bean id="fundingBalanceRepository" class="funding.service.infrastructure.PostgresFundingBalanceRepository">
+    <constructor-arg value="#{systemEnvironment['PG_FUNDING_HOST']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_FUNDING_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_FUNDING_USER']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_FUNDING_PASS']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_FUNDING_DB']}"/>
+  </bean>
+
+  <bean id="funding.paymentClearedEventHandler"
+    class="funding.service.application.PaymentClearedEventHandler">
+    <constructor-arg ref="funding.bufferPublisher"/>
+  </bean>
+
+  <bean id="addToFundingBalanceCommandHandler"
+    class="funding.service.application.FundingBalanceHandler">
+    <constructor-arg ref="fundingBalanceRepository"/>
+    <constructor-arg ref="funding.bufferPublisher"/>
+  </bean>
+
+
+
+
+
 </beans>

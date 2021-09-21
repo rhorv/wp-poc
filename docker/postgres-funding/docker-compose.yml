@@ -2,14 +2,14 @@ version: '3.1'
 
 services:
 
-  billing-db:
+  funding-db:
     image: postgres
     restart: always
     ports:
-      - ${PG_BILLING_PORT}:5432
+      - ${PG_FUNDING_PORT}:5432
     environment:
-      POSTGRES_PASSWORD: ${PG_BILLING_PASS}
-      POSTGRES_USER: ${PG_BILLING_USER}
+      POSTGRES_PASSWORD: ${PG_FUNDING_PASS}
+      POSTGRES_USER: ${PG_FUNDING_USER}
 
 networks:
   default:

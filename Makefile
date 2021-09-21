@@ -1,6 +1,7 @@
 -include docker/postgres-pricing/.env
 -include docker/postgres-billing/.env
 -include docker/postgres-clearing/.env
+-include docker/postgres-funding/.env
 -include docker/kafka/.env
 -include docker/elk/.env
 
@@ -42,6 +43,8 @@ kafka-setup: ## Initializes the kafka topics
 	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic pricing-internal --bootstrap-server localhost:9092
 	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic billing-payment --bootstrap-server localhost:9092
 	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic billing-internal --bootstrap-server localhost:9092
+	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic funding-payment --bootstrap-server localhost:9092
+	docker exec -it kafka /bin/bash /opt/kafka/bin/kafka-topics.sh --create --if-not-exists --topic funding-internal --bootstrap-server localhost:9092
 
 kafka-start: ## Starts the kafka docker service
 	@export PWD=`pwd`
@@ -93,6 +96,16 @@ billing-db-stop: ## Stops the postgres billing db docker stack
 	@cd ${PWD}/docker/postgres-billing; docker-compose down;
 	@cd ${PWD}
 
+funding-db-start: ## Starts the postgres funding db docker service
+	@export PWD=`pwd`
+	@cd ${PWD}/docker/postgres-funding; docker-compose up -d
+	@cd ${PWD}
+
+funding-db-stop: ## Stops the postgres funding db docker stack
+	@export PWD=`pwd`;
+	@cd ${PWD}/docker/postgres-funding; docker-compose down;
+	@cd ${PWD}
+
 clearing-db-migrate: ## Runs migration for the clearing db
 	mvn clean flyway:migrate -Dflyway.locations=filesystem:src/main/resources/db/clearing/migration -Dflyway.user=${PG_CLEARING_USER} -Dflyway.password=${PG_CLEARING_PASS} -Dflyway.url=jdbc:postgresql://${PG_CLEARING_HOST}:${PG_CLEARING_PORT}/${PG_CLEARING_DB}
 
@@ -101,6 +114,9 @@ pricing-db-migrate: ## Runs migration for the pricing db
 
 billing-db-migrate: ## Runs migration for the billing db
 	mvn clean flyway:migrate -Dflyway.locations=filesystem:src/main/resources/db/billing/migration -Dflyway.user=${PG_BILLING_USER} -Dflyway.password=${PG_BILLING_PASS} -Dflyway.url=jdbc:postgresql://${PG_BILLING_HOST}:${PG_BILLING_PORT}/${PG_BILLING_DB}
+
+funding-db-migrate: ## Runs migration for the funding db
+	mvn clean flyway:migrate -Dflyway.locations=filesystem:src/main/resources/db/funding/migration -Dflyway.user=${PG_FUNDING_USER} -Dflyway.password=${PG_FUNDING_PASS} -Dflyway.url=jdbc:postgresql://${PG_FUNDING_HOST}:${PG_FUNDING_PORT}/${PG_FUNDING_DB}
 
 start-services: kafka-start elk-start  ## Starts all dockerized services
 

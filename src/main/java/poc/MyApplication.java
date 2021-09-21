@@ -26,6 +26,10 @@ public class MyApplication {
       System.out.println("Launching billing application ...");
       billing.Consumer consumer = new billing.Consumer();
       consumer.start();
+    } else if (args[0].equals("funding")) {
+      System.out.println("Launching funding application ...");
+      funding.Consumer consumer = new funding.Consumer();
+      consumer.start();
     } else if (args[0].equals("publish")) {
       System.out.println("Publishing initial clearing message ...");
       ApplicationContext appContext =

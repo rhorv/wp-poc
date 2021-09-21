@@ -1,0 +1,2 @@
+CREATE TABLE balance (reference char(8) NOT NULL, merchant_id char(36) NOT NULL, status varchar(16) NOT NULL, PRIMARY KEY (reference, merchant_id));
+CREATE TABLE payment (id char(36) NOT NULL UNIQUE PRIMARY KEY, reference char(8) NOT NULL, merchant_id char(36) NOT NULL, value_amount integer NOT NULL, value_currency char(3) NOT NULL, CONSTRAINT fk_balance FOREIGN KEY(reference, merchant_id) REFERENCES balance(reference, merchant_id));
