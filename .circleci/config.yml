@@ -59,9 +59,11 @@ jobs:
                   ../yq_linux_amd64 w --inplace manifest/wp/clearing/consumer-deployment.yaml 'spec.template.spec.initContainers[name==db-migration].image' rhorv/wp-poc-db-infra:${CIRCLE_SHA1} &&
                   ../yq_linux_amd64 w --inplace manifest/wp/pricing/consumer-deployment.yaml 'spec.template.spec.initContainers[name==db-migration].image' rhorv/wp-poc-db-infra:${CIRCLE_SHA1} &&
                   ../yq_linux_amd64 w --inplace manifest/wp/billing/consumer-deployment.yaml 'spec.template.spec.initContainers[name==db-migration].image' rhorv/wp-poc-db-infra:${CIRCLE_SHA1} &&
+                  ../yq_linux_amd64 w --inplace manifest/wp/funding/consumer-deployment.yaml 'spec.template.spec.initContainers[name==db-migration].image' rhorv/wp-poc-db-infra:${CIRCLE_SHA1} &&
                   ../yq_linux_amd64 w --inplace manifest/wp/clearing/consumer-deployment.yaml 'spec.template.spec.containers[name==clearing-consumer].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
                   ../yq_linux_amd64 w --inplace manifest/wp/pricing/consumer-deployment.yaml 'spec.template.spec.containers[name==pricing-consumer].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
                   ../yq_linux_amd64 w --inplace manifest/wp/billing/consumer-deployment.yaml 'spec.template.spec.containers[name==billing-consumer].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
+                  ../yq_linux_amd64 w --inplace manifest/wp/funding/consumer-deployment.yaml 'spec.template.spec.containers[name==funding-consumer].image' rhorv/wp-poc:${CIRCLE_SHA1} &&
                   git config user.email "rhorvath@starfleet.hu" && git config user.name "CircleCI WP-POC" && git add . && git commit -m "Automatic commit for new container ${CIRCLE_SHA1}" && git push origin master
 workflows:
   version: 2
