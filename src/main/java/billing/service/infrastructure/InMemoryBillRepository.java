@@ -2,7 +2,9 @@ package billing.service.infrastructure;
 
 import billing.domain.Bill;
 import billing.domain.BillRepository;
+import billing.domain.Reference;
 import java.lang.reflect.Field;
+import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -22,10 +24,16 @@ public class InMemoryBillRepository implements BillRepository {
     }
   }
 
+  @Override
   public Bill getOpenBillFor(UUID merchantId) throws Exception {
+    return this.getOpenBillFor(merchantId, null);
+  }
+
+  public Bill getOpenBillFor(UUID merchantId, Reference reference) throws Exception {
     return this.bills.stream()
         .filter(bill -> merchantId.equals(bill.getMerchantId()))
         .filter(bill -> bill.isOpen())
+        .filter(bill -> bill.getReference().equals(reference) || reference == null)
         .findFirst().get();
   }
 

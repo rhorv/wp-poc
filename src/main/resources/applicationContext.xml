@@ -281,4 +281,56 @@
 
 
 
+
+  <bean id="onboarding.kafkaConsumer" class="events.consumer.kafka.KafkaTopicConsumer">
+    <constructor-arg ref="deserializer"/>
+    <constructor-arg ref="dispatcher"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_ONBOARDING_INTERNAL_TOPIC_NAME']}"/>
+    <constructor-arg value="onboarding"/>
+  </bean>
+
+  <bean id="onboarding.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
+    <constructor-arg ref="serializer"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_ONBOARDING_EXTERNAL_TOPIC_NAME']}"/>
+  </bean>
+  <bean id="onboarding.kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
+    <constructor-arg ref="serializer"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['KAFKA_ONBOARDING_INTERNAL_TOPIC_NAME']}"/>
+  </bean>
+
+  <bean id="onboarding.splitKafkaPublisher" class="events.publisher.SplitPublisher">
+    <constructor-arg>
+      <map>
+        <entry key="event" value-ref="onboarding.kafkaEventPublisher"/>
+        <entry key="command" value-ref="onboarding.kafkaCommandPublisher"/>
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <alias name="onboarding.splitKafkaPublisher" alias="onboarding.messagePublisher"/>
+  <alias name="onboarding.kafkaConsumer" alias="onboarding.messageConsumer"/>
+
+  <bean id="onboarding.bufferPublisher" class="events.publisher.Buffer">
+    <constructor-arg ref="onboarding.splitKafkaPublisher"/>
+  </bean>
+
+  <bean id="onboarding.merchantRepository" class="onboarding.service.infrastructure.PostgresMerchantRepository">
+    <constructor-arg value="#{systemEnvironment['PG_ONBOARDING_HOST']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_ONBOARDING_PORT']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_ONBOARDING_USER']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_ONBOARDING_PASS']}"/>
+    <constructor-arg value="#{systemEnvironment['PG_ONBOARDING_DB']}"/>
+  </bean>
+
+  <bean id="assignMerchantToLcpCommandHandler"
+    class="onboarding.service.application.AssignMerchantToLcpCommandHandler">
+    <constructor-arg ref="onboarding.bufferPublisher"/>
+    <constructor-arg ref="onboarding.merchantRepository"/>
+  </bean>
+
+
+
 </beans>

@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -47,10 +48,20 @@ public class PostgresBillRepository implements BillRepository {
   }
 
   public Bill getOpenBillFor(UUID merchantId) throws Exception {
+    return this.getOpenBillFor(merchantId, null);
+  }
+
+  public Bill getOpenBillFor(UUID merchantId, Reference reference) throws Exception {
     Connection conn = connect();
     PreparedStatement statement =
-        conn.prepareStatement("SELECT * FROM bill WHERE merchant_id = ? AND status = 'OPEN'");
+        (reference == null)
+            ? conn.prepareStatement("SELECT * FROM bill WHERE merchant_id = ? AND status = 'OPEN'")
+            : conn.prepareStatement(
+                "SELECT * FROM bill WHERE merchant_id = ? AND status = 'OPEN' AND reference = ?");
     statement.setString(1, merchantId.toString());
+    if (reference != null) {
+      statement.setString(2, reference.toString());
+    }
     ResultSet resultSet = statement.executeQuery();
     resultSet.next();
 

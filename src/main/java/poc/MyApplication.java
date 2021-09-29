@@ -30,6 +30,10 @@ public class MyApplication {
       System.out.println("Launching funding application ...");
       funding.Consumer consumer = new funding.Consumer();
       consumer.start();
+    } else if (args[0].equals("onboarding")) {
+      System.out.println("Launching onboarding application ...");
+      onboarding.Consumer consumer = new onboarding.Consumer();
+      consumer.start();
     } else if (args[0].equals("publish")) {
       System.out.println("Publishing initial clearing message ...");
       ApplicationContext appContext =
