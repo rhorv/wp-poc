@@ -17,7 +17,8 @@ public class AssignMerchantToLcpCommandHandler implements IHandle {
   private Buffer publisher;
   private MerchantRepository merchantRepository;
 
-  public AssignMerchantToLcpCommandHandler(Buffer publisher, MerchantRepository merchantRepository) {
+  public AssignMerchantToLcpCommandHandler(
+      Buffer publisher, MerchantRepository merchantRepository) {
     this.publisher = publisher;
     this.merchantRepository = merchantRepository;
   }

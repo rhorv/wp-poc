@@ -27,12 +27,12 @@ public class Consumer {
         "assign_merchant_to_lcp",
         (IHandle) appContext.getBean("assignMerchantToLcpCommandHandler"));
 
-//    bufferPublisher.publish(
-//        new AssignMerchantToLcpCommand(
-//            UUID.fromString("27d2aadb-c444-4788-9195-5a42715a1d13"), new Lcp("WP-UK")));
+    //bufferPublisher.publish(
+    //    new AssignMerchantToLcpCommand(
+    //        UUID.fromString("27d2aadb-c444-4788-9195-5a42715a1d13"), new Lcp("WP-UK")));
 
     try {
-//      bufferPublisher.flush();
+      //bufferPublisher.flush();
       consumer.consume();
     } catch (Exception e) {
       e.printStackTrace();

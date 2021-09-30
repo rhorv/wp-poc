@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import events.IMessage;
 import events.publisher.IPublish;
-import funding.service.DomainEvent;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -15,6 +14,7 @@ import java.util.UUID;
 import onboarding.domain.Lcp;
 import onboarding.domain.Merchant;
 import onboarding.domain.event.MerchantAssignedToLcpEvent;
+import onboarding.service.DomainEvent;
 
 public class OnboardingFeature {
 
@@ -26,6 +26,7 @@ public class OnboardingFeature {
       this.messages.add(message);
     }
   }
+
   private Merchant merchant;
   private Lcp lcp;
   private StubPublisher publisher;
@@ -57,6 +58,5 @@ public class OnboardingFeature {
     IMessage message = this.publisher.messages.get(0);
     assertEquals(message.getPayload().get("id"), this.merchant.getId().toString());
     assertEquals(message.getPayload().get("lcp"), this.lcp.toString());
-
   }
 }
