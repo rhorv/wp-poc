@@ -1,6 +1,5 @@
 package events.formatter.schemaprovider;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import events.formatter.IProvideSchema;
@@ -13,33 +12,15 @@ import org.apache.commons.io.IOUtils;
 public class ConfluentSchemaRegistryBasedSchemaProvider implements IProvideSchema {
 
   private String host;
-  private String genericSchemaName;
   private String family;
-  private boolean useGenericForMissing;
 
-  public ConfluentSchemaRegistryBasedSchemaProvider(String host, String genericSchemaName,
-      String family, boolean useGenericForMissing) {
+  public ConfluentSchemaRegistryBasedSchemaProvider(String host, String family) {
     this.host = host;
-    this.genericSchemaName = genericSchemaName;
     this.family = family;
-    this.useGenericForMissing = useGenericForMissing;
   }
 
-  public String getGenericSchema() throws Exception {
-    return this.getSchema(this.genericSchemaName);
-  }
-
-  public String getSpecificSchemaFor(String messageName) throws Exception {
-    try {
-      String response = this.getSchema(messageName);
-      return response;
-    } catch (Exception e) {
-      return this.getGenericSchema();
-    }
-  }
-
-  private String getSchema(String name) throws Exception {
-    URL url = new URL(this.host + "/subjects/" + this.family + "-" + name + "/versions/latest");
+  public String get(String name, String version) throws Exception {
+    URL url = new URL(this.host + "/subjects/" + this.family + "-" + name + "/versions/" + version);
     HttpURLConnection con = (HttpURLConnection) url.openConnection();
     con.setRequestMethod("GET");
     InputStream responseStream = con.getInputStream();

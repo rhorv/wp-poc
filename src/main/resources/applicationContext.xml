@@ -5,26 +5,128 @@
                 http://www.springframework.org/schema/beans
                 http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="rjs1SchemaFileProvider" class="events.formatter.schemaprovider.FileBasedSchemaProvider">
-    <constructor-arg value="src/main/resources/schema/rjs1/generic.json"/>
-    <constructor-arg>
-      <map/>
-    </constructor-arg>
-    <constructor-arg value="true"/>
+  <bean id="wpCompactSchemaFileProvider" class="events.formatter.schemaprovider.FileDirectoryTreeBasedSchemaProvider">
+    <constructor-arg value="src/main/resources/schema/wpcompact"/>
+    <constructor-arg value="json"/>
   </bean>
 
   <bean id="rjs1Deserializer" class="events.formatter.family.rjs1.Rjs1Deserializer">
-    <constructor-arg ref="rjs1SchemaProvider"/>
+    <constructor-arg value="#{T(events.formatter.family.rjs1.BaseSchema).schema}"/>
   </bean>
 
-  <bean id="rjs1Serializer" class="events.formatter.family.rjs1.Rjs1Serializer"/>
+  <bean id="rjs1Serializer" class="events.formatter.family.rjs1.Rjs1Serializer">
+    <constructor-arg value="message-family" />
+  </bean>
   <bean id="decoratedRjs1Serializer"
     class="events.formatter.family.rjs1.SerializedValidatorDecorator">
     <constructor-arg ref="rjs1Serializer"/>
-    <constructor-arg ref="rjs1SchemaProvider"/>
+    <constructor-arg value="#{T(events.formatter.family.rjs1.BaseSchema).schema}"/>
   </bean>
 
+
+  <bean id="clearing.wpCompactSerializer" class="events.formatter.family.wpcompact.v1.WpSerializer">
+    <constructor-arg>
+      <list>
+<!--        <ref bean="gzipEncoder"/>-->
+<!--        <ref bean="base64encoder"/>-->
+      </list>
+    </constructor-arg>
+    <constructor-arg>
+      <list>
+        <ref bean="nodeInfoProvider"/>
+      </list>
+    </constructor-arg>
+    <constructor-arg ref="initiatorProvider" />
+    <constructor-arg ref="consequenceOfProvider" />
+    <constructor-arg value="clearing" />
+  </bean>
+  <bean id="pricing.wpCompactSerializer" class="events.formatter.family.wpcompact.v1.WpSerializer">
+    <constructor-arg>
+      <list>
+        <!--        <ref bean="gzipEncoder"/>-->
+        <!--        <ref bean="base64encoder"/>-->
+      </list>
+    </constructor-arg>
+    <constructor-arg>
+      <list>
+        <ref bean="nodeInfoProvider"/>
+      </list>
+    </constructor-arg>
+    <constructor-arg ref="initiatorProvider" />
+    <constructor-arg ref="consequenceOfProvider" />
+    <constructor-arg value="pricing" />
+  </bean>
+  <bean id="billing.wpCompactSerializer" class="events.formatter.family.wpcompact.v1.WpSerializer">
+    <constructor-arg>
+      <list>
+        <!--        <ref bean="gzipEncoder"/>-->
+        <!--        <ref bean="base64encoder"/>-->
+      </list>
+    </constructor-arg>
+    <constructor-arg>
+      <list>
+        <ref bean="nodeInfoProvider"/>
+      </list>
+    </constructor-arg>
+    <constructor-arg ref="initiatorProvider" />
+    <constructor-arg ref="consequenceOfProvider" />
+    <constructor-arg value="billing" />
+  </bean>
+  <bean id="funding.wpCompactSerializer" class="events.formatter.family.wpcompact.v1.WpSerializer">
+    <constructor-arg>
+      <list>
+        <!--        <ref bean="gzipEncoder"/>-->
+        <!--        <ref bean="base64encoder"/>-->
+      </list>
+    </constructor-arg>
+    <constructor-arg>
+      <list>
+        <ref bean="nodeInfoProvider"/>
+      </list>
+    </constructor-arg>
+    <constructor-arg ref="initiatorProvider" />
+    <constructor-arg ref="consequenceOfProvider" />
+    <constructor-arg value="funding" />
+  </bean>
+  <bean id="onboarding.wpCompactSerializer" class="events.formatter.family.wpcompact.v1.WpSerializer">
+    <constructor-arg>
+      <list>
+        <!--        <ref bean="gzipEncoder"/>-->
+        <!--        <ref bean="base64encoder"/>-->
+      </list>
+    </constructor-arg>
+    <constructor-arg>
+      <list>
+        <ref bean="nodeInfoProvider"/>
+      </list>
+    </constructor-arg>
+    <constructor-arg ref="initiatorProvider" />
+    <constructor-arg ref="consequenceOfProvider" />
+    <constructor-arg value="onboarding" />
+  </bean>
+
+  <bean id="wpCompactDeserializer" class="events.formatter.family.wpcompact.v1.WpDeserializer">
+    <constructor-arg>
+      <list>
+        <ref bean="gzipDecoder"/>
+        <ref bean="base64decoder"/>
+      </list>
+    </constructor-arg>
+    <constructor-arg ref="initiatorProvider" />
+    <constructor-arg ref="consequenceOfProvider" />
+    <constructor-arg ref="wpCompactSchemaProvider" />
+    <constructor-arg value="#{T(events.formatter.family.rjs1.BaseSchema).schema}"/>
+  </bean>
+  <bean id="initiatorProvider" class="events.formatter.family.wpcompact.meta.provider.InMemoryInitiatorProvider" />
+  <bean id="consequenceOfProvider" class="events.formatter.family.wpcompact.meta.provider.InMemoryConsequenceOfProvider" />
+  <bean id="nodeInfoProvider" class="events.formatter.family.wpcompact.meta.provider.NodeInfoProvider" />
+  <bean id="base64encoder" class="events.formatter.encoder.Base64Encoder" />
+  <bean id="base64decoder" class="events.formatter.decoder.Base64Decoder" />
+  <bean id="gzipEncoder" class="events.formatter.encoder.GzipEncoder" />
+  <bean id="gzipDecoder" class="events.formatter.decoder.GzipDecoder" />
+
   <bean id="messageFamilyAwareDeserializer" class="events.formatter.MessageFamilyAwareDeserializer">
+    <constructor-arg value="message-family"/>
     <constructor-arg>
       <map>
         <entry key="#{T(events.formatter.family.rjs1.Rjs1Deserializer).NAME}"
@@ -37,9 +139,11 @@
   </bean>
 
   <alias name="guavaDispatcher" alias="dispatcher"/>
-  <alias name="decoratedRjs1Serializer" alias="serializer"/>
-  <alias name="messageFamilyAwareDeserializer" alias="deserializer"/>
-  <alias name="rjs1SchemaFileProvider" alias="rjs1SchemaProvider"/>
+<!--  <alias name="decoratedRjs1Serializer" alias="serializer"/>-->
+<!--  <alias name="messageFamilyAwareDeserializer" alias="deserializer"/>-->
+<!--  <alias name="wpCompactSerializer" alias="serializer"/>-->
+  <alias name="wpCompactDeserializer" alias="deserializer"/>
+  <alias name="wpCompactSchemaFileProvider" alias="wpCompactSchemaProvider"/>
 
   <bean id="clearing.kafkaConsumer" class="events.consumer.kafka.KafkaTopicConsumer">
     <constructor-arg ref="deserializer"/>
@@ -50,12 +154,12 @@
   </bean>
 
   <bean id="clearing.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="clearing.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_CLEARING_EXTERNAL_TOPIC_NAME']}"/>
   </bean>
   <bean id="clearing.kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="clearing.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_CLEARING_INTERNAL_TOPIC_NAME']}"/>
   </bean>
@@ -112,12 +216,12 @@
   </bean>
 
   <bean id="pricing.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="pricing.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_PRICING_EXTERNAL_TOPIC_NAME']}"/>
   </bean>
   <bean id="pricing.kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="pricing.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_PRICING_INTERNAL_TOPIC_NAME']}"/>
   </bean>
@@ -172,12 +276,12 @@
   </bean>
 
   <bean id="billing.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="billing.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_BILLING_EXTERNAL_TOPIC_NAME']}"/>
   </bean>
   <bean id="billing.kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="billing.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_BILLING_INTERNAL_TOPIC_NAME']}"/>
   </bean>
@@ -232,12 +336,12 @@
   </bean>
 
   <bean id="funding.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="funding.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_FUNDING_EXTERNAL_TOPIC_NAME']}"/>
   </bean>
   <bean id="funding.kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="funding.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_FUNDING_INTERNAL_TOPIC_NAME']}"/>
   </bean>
@@ -291,12 +395,12 @@
   </bean>
 
   <bean id="onboarding.kafkaEventPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="onboarding.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_ONBOARDING_EXTERNAL_TOPIC_NAME']}"/>
   </bean>
   <bean id="onboarding.kafkaCommandPublisher" class="events.publisher.kafka.KafkaTopicPublisher">
-    <constructor-arg ref="serializer"/>
+    <constructor-arg ref="onboarding.wpCompactSerializer"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_HOST']}:#{systemEnvironment['KAFKA_PORT']}"/>
     <constructor-arg value="#{systemEnvironment['KAFKA_ONBOARDING_INTERNAL_TOPIC_NAME']}"/>
   </bean>

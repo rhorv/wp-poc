@@ -2,9 +2,10 @@ package events.formatter.family.hav1;
 
 import events.IMessage;
 import events.formatter.Envelope;
-import events.formatter.IProvideSchema;
 import events.formatter.ISerializeMessage;
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Parser;
@@ -16,18 +17,18 @@ import org.apache.avro.io.EncoderFactory;
 
 public class Hav1Serializer implements ISerializeMessage {
 
-  private IProvideSchema schemaProvider;
   private static final String NAME = "hav1";
+  private String contentTypeKey;
 
-  public Hav1Serializer(IProvideSchema schemaProvider) {
-    this.schemaProvider = schemaProvider;
+  public Hav1Serializer(String contentTypeKey) {
+    this.contentTypeKey = contentTypeKey;
   }
 
   public Envelope serialize(IMessage message) throws Exception {
 
     String id = UUID.randomUUID().toString();
     Parser parser = new Parser();
-    Schema avroSchema = parser.parse(this.schemaProvider.getGenericSchema());
+    Schema avroSchema = parser.parse(BaseSchema.schema);
 
     GenericRecord avroRecord = new Record(avroSchema);
     avroRecord.put("id", id);
@@ -43,6 +44,8 @@ public class Hav1Serializer implements ISerializeMessage {
     writer.write(avroRecord, encoder);
     encoder.flush();
 
-    return Envelope.v1(id, NAME, stream.toByteArray());
+    Map<String, String> header = new HashMap<>();
+    header.put(this.contentTypeKey, NAME);
+    return new Envelope(header, stream.toByteArray());
   }
 }

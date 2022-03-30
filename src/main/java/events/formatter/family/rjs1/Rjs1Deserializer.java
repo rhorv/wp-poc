@@ -7,7 +7,6 @@ import events.IMessage;
 import events.Message;
 import events.formatter.Envelope;
 import events.formatter.IDeserializeMessage;
-import events.formatter.IProvideSchema;
 import java.nio.charset.StandardCharsets;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -17,21 +16,17 @@ import org.json.JSONTokener;
 
 public class Rjs1Deserializer implements IDeserializeMessage {
 
-  private IProvideSchema schemaProvider;
   public static final String NAME = "rjs1";
+  private String baseSchema;
 
-  public Rjs1Deserializer(IProvideSchema schemaProvider) {
-    this.schemaProvider = schemaProvider;
+  public Rjs1Deserializer(String baseSchema) {
+    this.baseSchema = baseSchema;
   }
 
   public IMessage deserialize(Envelope envelope) throws Exception {
 
-    if (!envelope.compatibleWith(1)) {
-      throw new Exception();
-    }
-
     String messageBody = new String(envelope.getBody(), StandardCharsets.UTF_8);
-    JSONObject rawSchema = new JSONObject(new JSONTokener(this.schemaProvider.getGenericSchema()));
+    JSONObject rawSchema = new JSONObject(new JSONTokener(this.baseSchema));
     Schema schema = SchemaLoader.load(rawSchema);
     schema.validate(
         new JSONObject(messageBody)); // throws a ValidationException if this object is invalid

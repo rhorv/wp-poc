@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import money.Currency;
 import money.Money;
 
 public class PostgresFundingBalanceRepository implements FundingBalanceRepository {
@@ -57,19 +58,20 @@ public class PostgresFundingBalanceRepository implements FundingBalanceRepositor
     }
     FundingBalance balance =
         new FundingBalance(merchantId, new Reference(resultSet.getString("reference")));
-    Field countField = balance.getClass().getDeclaredField("paymentCount");
-    countField.setAccessible(true);
+    Field totalField = balance.getClass().getDeclaredField("totalBalance");
+    totalField.setAccessible(true);
 
     statement =
         conn.prepareStatement(
-            "SELECT COUNT(id) AS payment_count "
+            "SELECT SUM(value_amount) AS total_balance_value "
                 + "FROM payment WHERE merchant_id = ? AND reference = ?");
     statement.setString(1, merchantId.toString());
     statement.setString(2, balance.getReference().toString());
     resultSet = statement.executeQuery();
     resultSet.next();
 
-    countField.set(balance, resultSet.getInt("payment_count"));
+    // hard wired GBP * POC
+    totalField.set(balance, new Money(resultSet.getInt("total_balance_value"), Currency.GBP));
     return balance;
   }
 

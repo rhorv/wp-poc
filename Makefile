@@ -134,9 +134,15 @@ funding-db-migrate: ## Runs migration for the funding db
 onboarding-db-migrate: ## Runs migration for the onboarding db
 	mvn clean flyway:migrate -Dflyway.locations=filesystem:src/main/resources/db/onboarding/migration -Dflyway.user=${PG_ONBOARDING_USER} -Dflyway.password=${PG_ONBOARDING_PASS} -Dflyway.url=jdbc:postgresql://${PG_ONBOARDING_HOST}:${PG_ONBOARDING_PORT}/${PG_ONBOARDING_DB}
 
+db-migrate: clearing-db-migrate pricing-db-migrate billing-db-migrate funding-db-migrate onboarding-db-migrate ## Runs all db migrations
+
 start-services: kafka-start elk-start  ## Starts all dockerized services
 
 stop-services: elk-stop kafka-stop ## Stops all dockerized services
+
+start-app-services: clearing-db-start pricing-db-start billing-db-start funding-db-start onboarding-db-start ## Starts all dockerized app services
+
+stop-app-services: clearing-db-stop pricing-db-stop billing-db-stop funding-db-stop onboarding-db-stop ## Stops all dockerized app services
 
 test: ## Runs the tests
 	mvn test

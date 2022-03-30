@@ -1,12 +1,15 @@
-package events;
+package events.formatter.family.wpcompact.meta;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class MetaItem {
+  protected String name;
+  protected Map<String, String> details;
 
-  private String name;
-  private Map<String, String> details = new HashMap<>();
+  public MetaItem(String name) {
+    this(name, new HashMap<>());
+  }
 
   public MetaItem(String name, Map<String, String> details) {
     this.name = name;

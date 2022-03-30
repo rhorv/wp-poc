@@ -6,13 +6,14 @@ import funding.service.DomainEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import money.Money;
 
 public class FundingBalance {
   private Reference reference;
   private FundingBalanceStatus status;
   private UUID merchantId;
   private List<Payment> newPayments;
-  private Integer paymentCount = 0;
+  private Money totalBalance;
 
   public FundingBalance(UUID merchantId, Reference reference) {
     this.reference = reference;
@@ -32,7 +33,7 @@ public class FundingBalance {
     }
     this.status = FundingBalanceStatus.CLOSED;
     DomainEvent.publish(
-        new FundingBalanceClosedEvent(this.merchantId, this.reference, this.paymentCount));
+        new FundingBalanceClosedEvent(this.merchantId, this.reference, this.totalBalance));
   }
 
   public void add(Payment payment) throws Exception {

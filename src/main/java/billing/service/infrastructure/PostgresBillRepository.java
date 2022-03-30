@@ -70,19 +70,20 @@ public class PostgresBillRepository implements BillRepository {
           "POC006 - There in no open bill for merchant '" + merchantId.toString() + "'");
     }
     Bill bill = new Bill(merchantId, new Reference(resultSet.getString("reference")));
-    Field countField = bill.getClass().getDeclaredField("paymentCount");
-    countField.setAccessible(true);
+    Field totalField = bill.getClass().getDeclaredField("totalCharges");
+    totalField.setAccessible(true);
 
     statement =
         conn.prepareStatement(
-            "SELECT COUNT(id) AS payment_count "
+            "SELECT SUM(charge_amount) AS total_charge_value "
                 + "FROM payment WHERE merchant_id = ? AND reference = ?");
     statement.setString(1, merchantId.toString());
     statement.setString(2, bill.getReference().toString());
     resultSet = statement.executeQuery();
     resultSet.next();
 
-    countField.set(bill, resultSet.getInt("payment_count"));
+    // hard wired GBP * POC
+    totalField.set(bill, new Money(resultSet.getInt("total_charge_value"), Currency.GBP));
     return bill;
   }
 

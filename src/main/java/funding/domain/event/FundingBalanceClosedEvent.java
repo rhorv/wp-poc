@@ -5,6 +5,7 @@ import funding.domain.Reference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import money.Money;
 import org.joda.time.DateTime;
 
 public class FundingBalanceClosedEvent extends Event implements IMessage {
@@ -12,14 +13,14 @@ public class FundingBalanceClosedEvent extends Event implements IMessage {
   public static final String NAME = "funding_balance_closed";
   private UUID merchantId;
   private Reference reference;
-  private Integer paymentCount;
+  private Money totalBalance;
   private DateTime occurredAt;
   private Integer version = 1;
 
-  public FundingBalanceClosedEvent(UUID merchantId, Reference reference, Integer paymentCount) {
+  public FundingBalanceClosedEvent(UUID merchantId, Reference reference, Money totalBalance) {
     this.merchantId = merchantId;
     this.reference = reference;
-    this.paymentCount = paymentCount;
+    this.totalBalance = totalBalance;
     this.occurredAt = DateTime.now();
   }
 
@@ -27,7 +28,8 @@ public class FundingBalanceClosedEvent extends Event implements IMessage {
     Map<String, String> payload = new HashMap<String, String>();
     payload.put("reference", this.reference.toString());
     payload.put("merchantId", this.merchantId.toString());
-    payload.put("payments_count", this.paymentCount.toString());
+    payload.put("totalBalanceAmount", this.totalBalance.getAmount().toString());
+    payload.put("totalBalanceCurrency", this.totalBalance.getCurrency().toString());
     return payload;
   }
 

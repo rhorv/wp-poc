@@ -9,10 +9,16 @@ import events.formatter.ISerializeMessage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.kafka.common.protocol.types.Field.Str;
 
 public class Rjs1Serializer implements ISerializeMessage {
 
   public static final String NAME = "rjs1";
+  private String contentTypeKey;
+
+  public Rjs1Serializer(String contentTypeKey) {
+    this.contentTypeKey = contentTypeKey;
+  }
 
   public Envelope serialize(IMessage message) throws Exception {
     GsonClassDto dto = new GsonClassDto();
@@ -27,6 +33,8 @@ public class Rjs1Serializer implements ISerializeMessage {
     Gson gson = builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .create();
     String jsonString = gson.toJson(dto);
-    return Envelope.v1(dto.id, NAME, jsonString.getBytes());
+    Map<String, String> header = new HashMap<>();
+    header.put(this.contentTypeKey, NAME);
+    return new Envelope(header, jsonString.getBytes());
   }
 }

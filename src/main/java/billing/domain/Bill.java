@@ -6,13 +6,14 @@ import billing.service.DomainEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import money.Money;
 
 public class Bill {
   private Reference reference;
   private BillStatus status;
   private UUID merchantId;
   private List<Payment> newPayments;
-  private Integer paymentCount = 0;
+  private Money totalCharges;
 
   public Bill(UUID merchantId, Reference reference) {
     this.reference = reference;
@@ -31,7 +32,7 @@ public class Bill {
               + "' is not OPEN");
     }
     this.status = BillStatus.CLOSED;
-    DomainEvent.publish(new BillClosedEvent(this.merchantId, this.reference, this.paymentCount));
+    DomainEvent.publish(new BillClosedEvent(this.merchantId, this.reference, this.totalCharges));
   }
 
   public void add(Payment payment) throws Exception {

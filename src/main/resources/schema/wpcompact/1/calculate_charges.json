@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Detailing valid message format for calculate_charges",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "RFC 4122 Compliant UUID of the message",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "name": {
+      "description": "message name",
+      "type": "string",
+      "const": "calculate_charges"
+    },
+    "category": {
+      "description": "Type of the message",
+      "type": "string",
+      "const": "command"
+    },
+    "payload": {
+      "description": "Payload of the message",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "RFC 4122 Compliant UUID of the payment",
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "interchangeCostAmount": {
+          "description": "Interchange cost in subcurrency",
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "interchangeCostCurrency": {
+          "description": "ISO 4217 3-letter currency code for interchange",
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "schemeFeeAmount": {
+          "description": "Scheme fee in subcurrency",
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "schemeFeeCurrency": {
+          "description": "ISO 4217 3-letter currency code for scheme fee",
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "value": {
+          "description": "Total value of the payment in subcurrency",
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "currency": {
+          "description": "ISO 4217 3-letter currency code for payment value",
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "merchantId": {
+          "description": "RFC 4122 Compliant UUID of the merchant",
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        }
+      },
+      "required": [
+        "id",
+        "interchangeCostAmount",
+        "interchangeCostCurrency",
+        "schemeFeeAmount",
+        "schemeFeeCurrency",
+        "value",
+        "currency",
+        "merchantId"
+      ]
+    },
+
+    "version": {
+      "description": "Version of the given message (name)",
+      "type": "integer",
+      "const": 1
+    },
+    "occurred_at": {
+      "description": "Date and time when the subject of the message occurred (ISO 8601)",
+      "type": "string",
+      "format": "date-time",
+      "examples": [
+        "2018-09-15T15:53:0001:00"
+      ]
+    }
+  },
+  "required": [
+    "category",
+    "name",
+    "payload",
+    "version",
+    "id",
+    "occurred_at"
+  ]
+}

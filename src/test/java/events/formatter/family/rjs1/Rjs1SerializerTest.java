@@ -20,7 +20,7 @@ class Rjs1SerializerTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    this.serializer = new Rjs1Serializer();
+    this.serializer = new Rjs1Serializer("message-family");
   }
 
   @Test
